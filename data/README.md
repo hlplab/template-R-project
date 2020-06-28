@@ -8,15 +8,21 @@ and other programs all offer auto-completion while coding, including for filenam
 Additionally, try to follow a consistent naming scheme. For example, if you're working with multiple languages, you might have data files like
 
 *German-perception-data.csv*
+
 *English-perception-data.csv*
+
 *English-production-data.csv*
+
 ...
 
 rather than 
 
 *German-perception-data.csv*
+
 *Perception.csv*
+
 *Production-English.csv*
+
 ...
 
 If this project has a lot of data files, consider grouping them into subfolders. For example, if you're important many individual data files 
