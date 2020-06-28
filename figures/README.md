@@ -1,4 +1,4 @@
-Eve if you embed figures into your R markdown code and generate them directly into the PDF, DOC, or HTML, you will likely want 
+Even if you embed most figures into your R markdown code and generate them directly into the PDF, DOC, or HTML, you will likely want 
 to store at least some figures in separate files---for example, because you want to import them into posters, presentations, 
 or papers. 
 
