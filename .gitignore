@@ -1,5 +1,8 @@
 *.Rproj
 *.rds
+*.log
+*.gz
+*.Rproj
 .Rproj.user
 .Rhistory
 .RData
