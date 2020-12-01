@@ -41,7 +41,7 @@ opts_chunk$set(dev = 'pdf',
                cache=FALSE, 
                size="footnotesize",
                tidy.opts = list(width.cutoff = 200),
-               fig.width = 8, fig.height = 4.5, fig.align = "center")
+               fig.width = 8, fig.height = 4.5, fig.align = "center", interval=1/10)
 
 def.chunk.hook  <- knitr::knit_hooks$get("chunk")
 knitr::knit_hooks$set(chunk = function(x, options) {
@@ -64,6 +64,7 @@ library(magrittr)    # pipes
 library(cowplot)
 library(ggridges)
 library(gganimate)   # requires \usepackage{animate} in YAML header if used with PDF
+                     # use fig.show='animate', animation.hook='gifski', interval=1/10 in chunks with animation
 library(av)
 
 ```
