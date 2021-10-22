@@ -1,0 +1,197 @@
+---
+title: "Sandbox testing of Norming Experiment C (test only)"
+author: "Menghan Yan and Florian Jaeger"
+date: \today
+geometry: margin=2cm
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{siunitx}
+  - \usepackage{tabto}
+  - \usepackage{soul}
+  - \usepackage{xcolor}
+  - \usepackage{placeins}
+  - \usepackage{lscape}
+  - \usepackage{animate}
+  - \newcommand{\blandscape}{\begin{landscape}}
+  - \newcommand{\elandscape}{\end{landscape}}
+  - \makeatletter\renewcommand{\fps@table}{!ht}\makeatother
+  - \setstcolor{red}
+  - \usepackage{sectsty}
+  - \sectionfont{\color{blue}} 
+  - \subsectionfont{\color{blue}}
+  - \subsubsectionfont{\color{darkgray}}
+output:
+  pdf_document: 
+    fig_caption: yes
+    fig_width: 7
+    keep_tex: yes
+    latex_engine: xelatex
+    number_sections: yes
+    toc: yes
+    toc_depth: 4
+  fontsize: 10pt
+---
+
+# Prep for importing data
+
+```{r, include=F}
+library(knitr)
+
+opts_chunk$set(dev = 'pdf',
+               comment="", 
+               echo=FALSE, warning=TRUE, message=TRUE,
+               cache=FALSE, 
+               size="small",
+               tidy.opts = list(width.cutoff = 200),
+               fig.width = 8, fig.height = 4.5, fig.align = "center")
+
+
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\n \\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+
+color_block = function(color) {
+  function(x, options) sprintf('\\color{%s}\\begin{verbatim}%s\\end{verbatim}\\color{black}',
+                               color, x)
+}
+knitr::knit_hooks$set(error = color_block('red'))
+knitr::knit_hooks$set(warning = color_block('orange'))
+```
+
+```{r, include=F}
+library(tidyverse)
+library(magrittr)
+
+library(gganimate)      # to animate plots
+library(RColorBrewer)   # to select brewer colors
+```
+
+```{r, include=F}
+options(width = 110)
+```
+
+```{r functions, include=FALSE}
+source("functions-for-experiment-reports.R")
+```
+
+# Data import
+```{r, message=F}
+experiment = "experiment-A"
+
+d.test = read_tsv("../../data/raw/experiment-NORM-A/sandbox/experiment-NORM-A-sandbox.results.batch1.tab")
+
+d.test %<>%
+  formatData(experiment = "NORM-A") %>%
+  sortVars()
+```
+
+
+# Assessing the data
+
+## How did DateTimeOffset work?
+```{r}
+d.test %>%
+  select(ParticipantID, Answer.userDateTimeOffset, Answer.userDateTime) %>%
+  group_by(ParticipantID) %>%
+  unique()
+```
+
+## Does the data only contain test results (as it should)?
+
+```{r}
+nrow(d.test) == nrow(
+  d.test %>% 
+  filter(Phase == "test"))
+```
+
+## Have any participants taken the experiment more than once?
+
+If a worker shows up more than once below, it is a duplicate take. For sandboxing, this is not an issue. We include this debugging step here since we will use it during production.
+
+```{r}
+d.test %>%
+  group_by(workerid, Assignment.SubmitDateTime) %>%
+  summarise() %>%
+  group_by(workerid) %>%
+  tally()
+```
+
+## Does each test block contain exactly 2 instances of each of the 6 audio conditions?
+
+
+Show all combinations of participant, test block, and video condition for which this is *not* true:
+```{r}
+d.test %>%
+  group_by(ParticipantID, Block, Condition.Test.Audio) %>%
+  tally() %>%
+  filter(n != 2) %>%
+  nrow()
+```
+## Does each test block + test pen condition contain exactly 1 instance of each of the 6 audio conditions?
+
+Show all combinations of participant, test block, and video condition for which this is *not* true:
+
+```{r}
+d.test %>%
+  group_by(ParticipantID, Block, Condition.Test.Pen,Condition.Test.Audio) %>%
+  tally() %>%
+  filter(n != 1) %>%
+  nrow()
+```
+
+## Does each test block contain exactly 3 instances of each of the 4 video conditions?
+
+Show all combinations of participant, test block, and video condition for which this is *not* true:
+
+```{r}
+d.test %>%
+  group_by(ParticipantID, Block, Condition.Test.OriginalLabel, Condition.Test.Pen) %>%
+  tally() %>%
+  filter(n != 3) %>%
+  nrow()
+```
+
+## Does each test block contain exactly 1 instance of each video item?
+
+Show all combinations of participant, test block, and video condition for which this is *not* true:
+
+```{r}
+d.test %>%
+  group_by(ParticipantID, Block, ItemID) %>%
+  tally() %>%
+  filter(n != 1) %>%
+  nrow()
+```
+
+## Matching beween YAML file and conditions in this data
+
+ 1. Get the HIT ID for each participant. 
+```{r}
+# In round 2, there were 5 distinct participants hitids, listed below.
+ #382GHPVPHSR88OB2ODIRZUWIF2543L
+ #3P520RYKCH6A31SLH2X2RVSWSBK5UZ                                      
+ #3T6EIBTM9LONUYQ46T7SZ5WODMTAAY                                       
+ #3UUIU9GZC55V3ODWHX7SMZ6U9XD5T8                                     
+ #3W0XM68YZPVXCNMQM1ROII6HE4H1KG
+
+# They acquired the same hittypeid, listed below
+ #31IV7WI13BLON6VJBWVKSWVXG94H5R  
+
+#checked: there are 5 completed assignments in the norming test round2 
+```
+ 
+ 2. Got to the YAML success file (.success.yaml). 
+ 3. Look up that HIT ID.
+ 4. Count what *k*th HIT corresponds to that HIT ID from the top of the success file (e.g., it might be the 6th HIT ID).
+ 
+```{r}
+
+```
+ 
+
+# Session info
+```{r session_info, include=TRUE, echo=TRUE, results='markup'}
+devtools::session_info()
+```
