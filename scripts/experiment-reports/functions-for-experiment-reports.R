@@ -4,9 +4,10 @@ levels.Ethnicity <- c("Hispanic", "Non-Hispanic")
 levels.Race <- c("American Indian", "Asian", "Black", "other", "White", "multiple")
 
 # While R can handle unicode, stan cannot. Thus using IPA as values does not work for models
-levels.response.NORM_A <- c("heed", "hid", "head", "had", "hud", "hood", "whod", "hod")
+levels.response.NORM_A <- c("dill", "till", "dim", "tim", "din", "tin", "dip", "tip")
 levels.correct.response.NORM_A <- NA
-levels.cue.names = c("Item.Cue_Hz_F1", "Item.Cue_Hz_F2", "Item.Cue_Mel_F1", "Item.Cue_Mel_F2")
+levels.response.voicing <- c("voiced", "voiceless")
+levels.cue.names = c("Prevoicing", "VOT", "f0")
 
 ## Data preparation ------------------------------------------------------- 
 simplifyAnswer <- function(x) {
@@ -20,13 +21,16 @@ formatData <- function(.data, experiment) {
   require(assertthat)
   require(lubridate)
   
-  experiment_labels <- c("NORM-A")
   assert_that(experiment %in% experiment_labels)
   
-  n.stims <- case_when(
-    experiment == experiment_labels[1] ~ 146 * 2 + 1,
-    T ~ NA_real_)
-  
+  if (experiment %in% "NORM-A") {
+    n.practice_stims <- NA
+    n.exposure_stims <- NA
+    n.test_stims <- 96 * 2 + 1
+    levels.response <- levels.response.NORM_A
+    levels.correct.response <- levels.correct.response.NORM_A
+  }
+ 
   .data %<>%
     # Remove any variables that are all NA
     mutate_at(
@@ -63,16 +67,16 @@ formatData <- function(.data, experiment) {
     { if (all(c("Answer.practResp") %in% names(.)))     
       separate(., 
                Answer.practResp,
-               into = paste0("Practice_Trial", 1:3),
+               into = paste0("Practice_Trial", 1:n_practice_stims),
                sep = ";") else . } %>%
     { if ("Answer.exposureResp" %in% names(.)) 
       separate(.,
                Answer.exposureResp,
-               into = paste0("Exposure_Trial", 1:101),
+               into = paste0("Exposure_Trial", 1:n.exposure_stims),
                sep = ";") else . } %>%
     separate(
       Answer.testResp,
-      into = paste0("Test_Trial", 1:n.stims),
+      into = paste0("Test_Trial", 1:n.test_stims),
       sep = "\\;") %>%
     pivot_longer(
       cols = contains("_Trial"), 
@@ -106,25 +110,18 @@ formatData <- function(.data, experiment) {
       # Anonymize workers
       ParticipantID = as.numeric(factor(paste(Assignment.Submit.DateTime.UTC, workerid, AssignmentID))),
       # Extract item information
-      REMOVE.Item = gsub("^(.*)\\.(wav)$", "\\1", Item.Filename),
-      Item.Height = as.numeric(sapply(strsplit(REMOVE.Item, "_"), function(x) x[2])),
-      Item.Backness = as.numeric(sapply(strsplit(REMOVE.Item, "_"), function(x) x[3])),
       Response = factor(Response, levels = levels.response),
       Item.CorrectResponse = factor(Item.CorrectResponse, levels = levels.correct.response),
-      Response.Vowel = factor(
-        plyr::mapvalues(
-          as.character(Response), 
-          c(levels.response.NORM_1A, levels.response.NORM_1B),
-          rep(levels.response.vowel, 2)),
-        levels = levels.response.vowel),
-      Item.CorrectResponse.Vowel = 
-        factor(
-            plyr::mapvalues(
-              as.character(Item.CorrectResponse),
-              levels.correct.response.NORM_1B, 
-              levels.correct.response.vowel),
-          levels = levels.response.vowel)
-        ) %>%
+      Response.Voicing = factor(
+        case_when(
+          Response %in% c("dill", "din", "dim", "dip") ~ "voiced",
+          Response %in% c("till", "tin", "tim", "tip") ~ "voiceless",
+          T ~ NA_character_),
+        levels = levels.response.voicing),
+      REMOVE.Item = gsub("^(.*)\\.(wav)$", "\\1", Item.Filename),
+    ) %>%
+    separate(REMOVE.Item, into = c("REMOVE.Word", "Item.VOT", "Item.Prevoicing", "Item.F0"), sep = "_") %>%
+    mutate_at(vars(Item.VOT, Item.Prevoicing, Item.F0), ~ as.numeric(gsub("[A-Za-z]+", "", .x))) %>%
     # For repeated items, is this the first, second, ... instance of that item?
     group_by(Experiment, ParticipantID, ItemID) %>%
     mutate(Item.InstanceInList = as.numeric(as.factor(Trial))) %>%

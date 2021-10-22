@@ -1,6 +1,6 @@
 ---
-title: "Sandbox testing of Norming Experiment C (test only)"
-author: "Menghan Yan and Florian Jaeger"
+title: "Sandbox testing of Norming Experiment A (test only)"
+author: "Maryann Tan and Florian Jaeger"
 date: \today
 geometry: margin=2cm
 header-includes:
@@ -32,8 +32,6 @@ output:
   fontsize: 10pt
 ---
 
-# Prep for importing data
-
 ```{r, include=F}
 library(knitr)
 
@@ -60,9 +58,14 @@ knitr::knit_hooks$set(error = color_block('red'))
 knitr::knit_hooks$set(warning = color_block('orange'))
 ```
 
+# Preamble 
+Loading libraries, functions, and setting constants.
+
 ```{r, include=F}
 library(tidyverse)
 library(magrittr)
+
+library(broom)          # for extraction of coefficients
 
 library(gganimate)      # to animate plots
 library(RColorBrewer)   # to select brewer colors
@@ -70,6 +73,8 @@ library(RColorBrewer)   # to select brewer colors
 
 ```{r, include=F}
 options(width = 110)
+
+theme_set(theme_bw())
 ```
 
 ```{r functions, include=FALSE}
@@ -77,12 +82,12 @@ source("functions-for-experiment-reports.R")
 ```
 
 # Data import
+Loading and formatting data.
+
 ```{r, message=F}
-experiment = "experiment-A"
+experiment = "NORM-A"
 
-d.test = read_tsv("../../data/raw/experiment-NORM-A/sandbox/experiment-NORM-A-sandbox.results.batch1.tab")
-
-d.test %<>%
+d.test = read_tsv("../../data/raw/experiment-NORM-A/sandbox/experiment-NORM-A-sandbox.results.batch1.tab") %>%
   formatData(experiment = "NORM-A") %>%
   sortVars()
 ```
@@ -90,20 +95,27 @@ d.test %<>%
 
 # Assessing the data
 
-## How did DateTimeOffset work?
+## Carefully read comments provided by participants
+No comments provided in the sandbox HITs.
+
 ```{r}
 d.test %>%
-  select(ParticipantID, Answer.userDateTimeOffset, Answer.userDateTime) %>%
-  group_by(ParticipantID) %>%
-  unique()
+  select(ParticipantID, Assignment.Comment) %>%
+  distinct()
 ```
 
-## Does the data only contain test results (as it should)?
+## Matching beween YAML file and conditions in this data
 
+ 1. Get the HIT ID for each participant. 
 ```{r}
-nrow(d.test) == nrow(
-  d.test %>% 
-  filter(Phase == "test"))
+```
+ 
+ 2. Go to the YAML success file (.success.yaml). 
+ 3. Look up that HIT ID.
+ 4. Count what *k*th HIT corresponds to that HIT ID from the top of the success file (e.g., it might be the 6th HIT ID).
+ 
+```{r}
+
 ```
 
 ## Have any participants taken the experiment more than once?
@@ -112,84 +124,152 @@ If a worker shows up more than once below, it is a duplicate take. For sandboxin
 
 ```{r}
 d.test %>%
-  group_by(workerid, Assignment.SubmitDateTime) %>%
+  group_by(workerid, Assignment.Submit.DateTime.UTC) %>%
   summarise() %>%
   group_by(workerid) %>%
   tally()
 ```
 
-## Does each test block contain exactly 2 instances of each of the 6 audio conditions?
-
-
+## Does each HIT contain exactly 2 instances of each recording?
 Show all combinations of participant, test block, and video condition for which this is *not* true:
+
 ```{r}
 d.test %>%
-  group_by(ParticipantID, Block, Condition.Test.Audio) %>%
+  group_by(ParticipantID, ItemID) %>%
   tally() %>%
   filter(n != 2) %>%
   nrow()
 ```
-## Does each test block + test pen condition contain exactly 1 instance of each of the 6 audio conditions?
 
-Show all combinations of participant, test block, and video condition for which this is *not* true:
+
+## Does the data only contain test results (as it should)?
+
+```{r}
+nrow(d.test) == nrow(
+  d.test %>% 
+  filter(Phase == "Test"))
+```
+
+
+## Did participants show increasing voiceless responses for stimuli with increasing VOT?
+We fit separate logistic regressions to each participant's responses with the VOT continuum as the sole (linear) predictor.
+
+```{r}
+d.test %<>%
+  group_by(ParticipantID) %>%
+  nest() %>%
+  mutate(
+    CategorizationModel = 
+      map(
+        data, 
+        ~ glm(Response == "voiceless" ~ Item.VOT, data = .x, family = binomial) %>% 
+          tidy()),
+    Categorization.Intercept = 
+      map(
+        CategorizationModel, 
+        ~ .x %>% 
+          filter(term == "(Intercept)") %>% 
+          pull(estimate)) %>% 
+      unlist(),
+    Categorization.Slope = 
+      map(
+        CategorizationModel, 
+        ~ .x %>% 
+          filter(term == "Item.VOT") %>% 
+          pull(estimate)) %>% 
+      unlist()) %>%
+  select(-CategorizationModel) %>%
+  unnest(data)
+```
 
 ```{r}
 d.test %>%
-  group_by(ParticipantID, Block, Condition.Test.Pen,Condition.Test.Audio) %>%
-  tally() %>%
-  filter(n != 1) %>%
-  nrow()
+  group_by(ParticipantID, Item.VOT, Categorization.Slope) %>%
+  mutate(Response.ProportionVoiceless = ifelse(Response == "voiceless", 1, 0)) %>%
+  ggplot(aes(
+    x = Item.VOT, 
+    y = Response.ProportionVoiceless, 
+    color = ParticipantID,
+    linetype = Categorization.Slope < 0)) +
+  geom_smooth(
+    formula = y ~ x, 
+    method = "glm", 
+    method.args = list(family = "binomial"),
+    se = FALSE) +
+  scale_x_continuous("VOT") +
+  scale_y_continuous("Proportion of voiceless responses", limits = c(0,1)) +
+  scale_linetype_manual(
+    "Unexpected\ncategorization\nslope",
+    breaks = c(T, F),
+    labels = c("yes", "no"),
+    values = c(2, 1))
 ```
 
-## Does each test block contain exactly 3 instances of each of the 4 video conditions?
+### Are there participants that are outliers in terms of the categorization functions?
+For example, did some participants swap the response keys. For that, we plot the participant-specific intercepts and slopes derived by the participant-specific logistic regressions to each participont's data) on a 2D landscape. 
 
-Show all combinations of participant, test block, and video condition for which this is *not* true:
+```{r, message=FALSE}
+d.test %>%
+  group_by(ParticipantID, Item.VOT, Categorization.Intercept, Categorization.Slope) %>%
+  summarise(Response.ProportionVoiceless = mean(ifelse(Response == "voiceless", 1, 0))) %>%
+  ggplot(
+    aes(
+      x = Categorization.Intercept, 
+      y = Categorization.Slope, 
+      color = Response.ProportionVoiceless)) +
+  geom_density2d(color = "black") +
+  geom_text(aes(label = ParticipantID), alpha = .3) +
+  scale_color_viridis_c("Proportion\nof voiceless\nresponses")
+```
+
+## How long did it take participants to complete the experiment?
+We have two ways of assessing the overall duration participants took to complete the experiment. The time between accepting and submitting the assignment includes any time that might pass before the participant actually starts the experiment (workers often select a few HITs---reserving them---and only then start working on them), time spent reading the instructions, and time spent on the survey: 
 
 ```{r}
 d.test %>%
-  group_by(ParticipantID, Block, Condition.Test.OriginalLabel, Condition.Test.Pen) %>%
-  tally() %>%
-  filter(n != 3) %>%
-  nrow()
+  select(ParticipantID, Duration.Assignment) %>%
+  distinct() %>%
+  ggplot(aes(x = Duration.Assignment)) +
+  geom_density() +
+  geom_rug() +
+  scale_x_continuous("Duration of assignment (in minutes)")
 ```
 
-## Does each test block contain exactly 1 instance of each video item?
-
-Show all combinations of participant, test block, and video condition for which this is *not* true:
+A second, perhaps more informative measure, is the time between the start of the first trial and the end of the last trial, which measures how much time was spent on the actual experiment.
 
 ```{r}
 d.test %>%
-  group_by(ParticipantID, Block, ItemID) %>%
-  tally() %>%
-  filter(n != 1) %>%
-  nrow()
+  select(ParticipantID, Duration.AllPhases) %>%
+  distinct() %>%
+  ggplot(aes(x = Duration.AllPhases)) +
+  geom_density() +
+  geom_rug() +
+  scale_x_continuous("Duration of test phase (in minutes)")
 ```
 
-## Matching beween YAML file and conditions in this data
 
- 1. Get the HIT ID for each participant. 
+### Were some participants particularly slow/fast to respond?
+We can also examine the pacing and variability in pacing across trials. For this, we plot the mean and standard deviation of each participants logarithm-transformed response times for all non-catch trials. Catch trials were excluded from this consideration since catch responses (pressing "B") could be given at any point of the video, making catch responses substantially faster than all other responses. 
+
+Participant with high SDs are those who might have, for example, have just one or two slow trials. Participant with high mean RTs but comparatively low SDs of those RTs, on the other hand, were consistently slow in responding.
+
 ```{r}
-# In round 2, there were 5 distinct participants hitids, listed below.
- #382GHPVPHSR88OB2ODIRZUWIF2543L
- #3P520RYKCH6A31SLH2X2RVSWSBK5UZ                                      
- #3T6EIBTM9LONUYQ46T7SZ5WODMTAAY                                       
- #3UUIU9GZC55V3ODWHX7SMZ6U9XD5T8                                     
- #3W0XM68YZPVXCNMQM1ROII6HE4H1KG
-
-# They acquired the same hittypeid, listed below
- #31IV7WI13BLON6VJBWVKSWVXG94H5R  
-
-#checked: there are 5 completed assignments in the norming test round2 
+d.test %>%
+  group_by(ParticipantID) %>%
+  mutate(Response.log_RT = log10(Response.RT)) %>%
+  summarise_at("Response.log_RT", .funs = list("mean" = mean, "sd" = sd)) %>%
+  ggplot(aes(x = mean, y = sd, label = ParticipantID)) +
+  geom_text(alpha = .8) +
+  geom_rug() +
+  scale_x_continuous("mean log-RT (log10 of msec)") +
+  scale_y_continuous("SD of log-RT") +
+  scale_color_manual(
+    "Unexpected\ncategorization\nslope",
+    breaks = c(T, F),
+    labels = c("yes", "no"),
+    values = c("red", "black"))
 ```
- 
- 2. Got to the YAML success file (.success.yaml). 
- 3. Look up that HIT ID.
- 4. Count what *k*th HIT corresponds to that HIT ID from the top of the success file (e.g., it might be the 6th HIT ID).
- 
-```{r}
 
-```
- 
 
 # Session info
 ```{r session_info, include=TRUE, echo=TRUE, results='markup'}
