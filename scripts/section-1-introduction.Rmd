@@ -1,11 +1,11 @@
 <!-- Do NOT knit this document. It is part of a larger document. Instead knit the main document (my-apa-formatted-article) -->
 
 # Introduction
-How humans managed to survive so far remains one of the central questions of the social sciences. ... Here are some references [e.g., @bradlow-bent2008; @nygaard1994; @Perrachione2016; @sidaras2009; @wade2007; @weil2001a; @xie2021jep]. And here is a figure references to Figure \@ref(fig:blub-results). When you look at the R-markdown, notice how the reference uses the label fig:label, whereas the caption and the R chunk that generates the figure use the label ref:label. Make sure to follow that format. 
+How humans managed to survive so far remains one of the central questions of the social sciences. ... Here are some references [e.g., @bradlow-bent2008; @nygaard1994; @Perrachione2016; @sidaras2009; @wade2007; @weil2001a; @xie2021jep]. And here is a figure references to Figure \@ref(fig:blub-results). 
 
-(ref:blub-results) A VERBOSE CAPTION LIKE Illustrating the effects of $\lambda$ and $\pi$ on the posterior probability of .... **Top panel:** Differences in lapse rate $\lambda$ for a uniform bias of $\pi_{/d/}=.5$. As the lapse rate increases, the ceiling and flooring responses at the end points change while the categorization slope remains the same. **Bottom panel:** Differences in bias $\pi_{/d/}$ when the lapse rate $\lambda$ = .2. As the bias towards /d/ changes from 0.1 to 0.9, the categorization surface shifts upwards and to the right, resulting in more /d/ responses across the phonetic space. (THE ACTUAL FIGURE HAS NOTHING TO DO WITH THIS CAPTION AND IS JUST MEANT AS AN EXAMPLE)
+(ref:blub-results) You should use a verbose caption that is self-contained and clearly states the main points of the figure. When you look at the R markdown for this document, note that the caption is *outside* of the R-chunk but linked to the R-chunk through a reference in the chunk option fig.cap. Notice also how the reference in the main text uses the label fig:label, whereas the caption and the R chunk option fig.cap that generates the figure use the label ref:label. Finally, the R-chunk itself is called label. Make sure to follow this format in order to make sure that your figure references and captions knit correctly. This example also demonstrates how you can use a globally defined base width and height for all figures. In this example, the base height is multiplied by two because we're faceting the data into two rows.
 
-```{r blub-results, fig.width = base.width * 4, fig.height= base.height + 1, fig.cap="(ref:blub-results)", warning=FALSE}
+```{r blub-results, fig.width = base.width * 1, fig.height= base.height * 2, fig.cap="(ref:blub-results)", warning=FALSE}
 cars %>%
   mutate(z = rbinom(nrow(.), 1, .5)) %>%
   ggplot(aes(x = speed, y = dist)) +
