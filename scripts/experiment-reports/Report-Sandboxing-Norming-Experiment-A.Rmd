@@ -1,6 +1,6 @@
 ---
-title: "Sandbox testing of Norming Experiment A (test only)"
-author: "Maryann Tan and Florian Jaeger"
+title: "Sandbox testing of Norming Experiment A"
+author: "YOUR NAMES"
 date: \today
 geometry: margin=2cm
 header-includes:
@@ -85,11 +85,7 @@ source("functions-for-experiment-reports.R")
 Loading and formatting data.
 
 ```{r, message=F}
-experiment = "NORM-A"
 
-d.test = read_tsv("../../data/raw/experiment-NORM-A/sandbox/experiment-NORM-A-sandbox.results.batch1.tab") %>%
-  formatData(experiment = "NORM-A") %>%
-  sortVars()
 ```
 
 
@@ -99,9 +95,7 @@ d.test = read_tsv("../../data/raw/experiment-NORM-A/sandbox/experiment-NORM-A-sa
 No comments provided in the sandbox HITs.
 
 ```{r}
-d.test %>%
-  select(ParticipantID, Assignment.Comment) %>%
-  distinct()
+
 ```
 
 ## Matching beween YAML file and conditions in this data
@@ -123,31 +117,21 @@ d.test %>%
 If a worker shows up more than once below, it is a duplicate take. For sandboxing, this is not an issue. We include this debugging step here since we will use it during production.
 
 ```{r}
-d.test %>%
-  group_by(workerid, Assignment.Submit.DateTime.UTC) %>%
-  summarise() %>%
-  group_by(workerid) %>%
-  tally()
+
 ```
 
 ## Does each HIT contain exactly 2 instances of each recording?
 Show all combinations of participant, test block, and video condition for which this is *not* true:
 
 ```{r}
-d.test %>%
-  group_by(ParticipantID, ItemID) %>%
-  tally() %>%
-  filter(n != 2) %>%
-  nrow()
+
 ```
 
 
 ## Does the data only contain test results (as it should)?
 
 ```{r}
-nrow(d.test) == nrow(
-  d.test %>% 
-  filter(Phase == "Test"))
+
 ```
 
 
@@ -155,96 +139,28 @@ nrow(d.test) == nrow(
 We fit separate logistic regressions to each participant's responses with the VOT continuum as the sole (linear) predictor.
 
 ```{r}
-d.test %<>%
-  group_by(ParticipantID) %>%
-  nest() %>%
-  mutate(
-    CategorizationModel = 
-      map(
-        data, 
-        ~ glm(Response == "voiceless" ~ Item.VOT, data = .x, family = binomial) %>% 
-          tidy()),
-    Categorization.Intercept = 
-      map(
-        CategorizationModel, 
-        ~ .x %>% 
-          filter(term == "(Intercept)") %>% 
-          pull(estimate)) %>% 
-      unlist(),
-    Categorization.Slope = 
-      map(
-        CategorizationModel, 
-        ~ .x %>% 
-          filter(term == "Item.VOT") %>% 
-          pull(estimate)) %>% 
-      unlist()) %>%
-  select(-CategorizationModel) %>%
-  unnest(data)
+
 ```
 
-```{r}
-d.test %>%
-  group_by(ParticipantID, Item.VOT, Categorization.Slope) %>%
-  mutate(Response.ProportionVoiceless = ifelse(Response == "voiceless", 1, 0)) %>%
-  ggplot(aes(
-    x = Item.VOT, 
-    y = Response.ProportionVoiceless, 
-    color = ParticipantID,
-    linetype = Categorization.Slope < 0)) +
-  geom_smooth(
-    formula = y ~ x, 
-    method = "glm", 
-    method.args = list(family = "binomial"),
-    se = FALSE) +
-  scale_x_continuous("VOT") +
-  scale_y_continuous("Proportion of voiceless responses", limits = c(0,1)) +
-  scale_linetype_manual(
-    "Unexpected\ncategorization\nslope",
-    breaks = c(T, F),
-    labels = c("yes", "no"),
-    values = c(2, 1))
-```
 
 ### Are there participants that are outliers in terms of the categorization functions?
 For example, did some participants swap the response keys. For that, we plot the participant-specific intercepts and slopes derived by the participant-specific logistic regressions to each participont's data) on a 2D landscape. 
 
 ```{r, message=FALSE}
-d.test %>%
-  group_by(ParticipantID, Item.VOT, Categorization.Intercept, Categorization.Slope) %>%
-  summarise(Response.ProportionVoiceless = mean(ifelse(Response == "voiceless", 1, 0))) %>%
-  ggplot(
-    aes(
-      x = Categorization.Intercept, 
-      y = Categorization.Slope, 
-      color = Response.ProportionVoiceless)) +
-  geom_density2d(color = "black") +
-  geom_text(aes(label = ParticipantID), alpha = .3) +
-  scale_color_viridis_c("Proportion\nof voiceless\nresponses")
+
 ```
 
 ## How long did it take participants to complete the experiment?
 We have two ways of assessing the overall duration participants took to complete the experiment. The time between accepting and submitting the assignment includes any time that might pass before the participant actually starts the experiment (workers often select a few HITs---reserving them---and only then start working on them), time spent reading the instructions, and time spent on the survey: 
 
 ```{r}
-d.test %>%
-  select(ParticipantID, Duration.Assignment) %>%
-  distinct() %>%
-  ggplot(aes(x = Duration.Assignment)) +
-  geom_density() +
-  geom_rug() +
-  scale_x_continuous("Duration of assignment (in minutes)")
+
 ```
 
 A second, perhaps more informative measure, is the time between the start of the first trial and the end of the last trial, which measures how much time was spent on the actual experiment.
 
 ```{r}
-d.test %>%
-  select(ParticipantID, Duration.AllPhases) %>%
-  distinct() %>%
-  ggplot(aes(x = Duration.AllPhases)) +
-  geom_density() +
-  geom_rug() +
-  scale_x_continuous("Duration of test phase (in minutes)")
+
 ```
 
 
@@ -254,20 +170,7 @@ We can also examine the pacing and variability in pacing across trials. For this
 Participant with high SDs are those who might have, for example, have just one or two slow trials. Participant with high mean RTs but comparatively low SDs of those RTs, on the other hand, were consistently slow in responding.
 
 ```{r}
-d.test %>%
-  group_by(ParticipantID) %>%
-  mutate(Response.log_RT = log10(Response.RT)) %>%
-  summarise_at("Response.log_RT", .funs = list("mean" = mean, "sd" = sd)) %>%
-  ggplot(aes(x = mean, y = sd, label = ParticipantID)) +
-  geom_text(alpha = .8) +
-  geom_rug() +
-  scale_x_continuous("mean log-RT (log10 of msec)") +
-  scale_y_continuous("SD of log-RT") +
-  scale_color_manual(
-    "Unexpected\ncategorization\nslope",
-    breaks = c(T, F),
-    labels = c("yes", "no"),
-    values = c("red", "black"))
+
 ```
 
 

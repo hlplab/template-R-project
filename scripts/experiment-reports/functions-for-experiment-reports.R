@@ -21,8 +21,6 @@ formatData <- function(.data, experiment) {
   require(assertthat)
   require(lubridate)
   
-  assert_that(experiment %in% experiment_labels)
-  
   if (experiment %in% "NORM-A") {
     n.practice_stims <- NA
     n.exposure_stims <- NA
