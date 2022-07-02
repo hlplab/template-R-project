@@ -1,7 +1,24 @@
 <!-- Do NOT knit this document. It is part of a larger document. Instead knit the main document (my-apa-formatted-article) -->
 
 # Introduction
-How humans managed to survive so far remains one of the central questions of the social sciences. ... Here are some references [e.g., @bradlow-bent2008; @nygaard1994; @Perrachione2016; @sidaras2009; @wade2007; @weil2001a; @xie2021jep]. You can also make phonetic symbols, e.g., for the sound category [`r linguisticsdown::cond_cmpl("ʃ")`] [as in *ship*, Newman et al., -@newman2001]. 
+How humans managed to survive so far remains one of the central questions of the social sciences. ... Here are some references [e.g., @bradlow-bent2008; @nygaard1994; @Perrachione2016; @sidaras2009; @wade2007; @weil2001a; @xie2021jep]. And here is a figure references to Figure \@ref(fig:blub-results). When you look at the R-markdown, notice how the reference uses the label fig:label, whereas the caption and the R chunk that generates the figure use the label ref:label. Make sure to follow that format. 
+
+(ref:blub-results) A VERBOSE CAPTION LIKE Illustrating the effects of $\lambda$ and $\pi$ on the posterior probability of .... **Top panel:** Differences in lapse rate $\lambda$ for a uniform bias of $\pi_{/d/}=.5$. As the lapse rate increases, the ceiling and flooring responses at the end points change while the categorization slope remains the same. **Bottom panel:** Differences in bias $\pi_{/d/}$ when the lapse rate $\lambda$ = .2. As the bias towards /d/ changes from 0.1 to 0.9, the categorization surface shifts upwards and to the right, resulting in more /d/ responses across the phonetic space. (THE ACTUAL FIGURE HAS NOTHING TO DO WITH THIS CAPTION AND IS JUST MEANT AS AN EXAMPLE)
+
+```{r blub-results, fig.width = base.width * 4, fig.height= base.height + 1, fig.cap="(ref:blub-results)", warning=FALSE}
+cars %>%
+  mutate(z = rbinom(nrow(.), 1, .5)) %>%
+  ggplot(aes(x = speed, y = dist)) +
+  geom_point() +
+  geom_smooth() +
+  facet_grid(z ~ .)
+```
+
+You can also make phonetic symbols, e.g., for the sound category [`r linguisticsdown::cond_cmpl("ʃ")`] [as in *ship*, Newman et al., -@newman2001]. And you can type equations like Equation \@ref(eq:posterior-probability-lapse), which describes Wichmann and Hill's psychometric model with parameters $\alpha$ and $\beta$ and more.  
+
+\begin{equation}\label{eq:posterior-probability-lapse}
+p(category | input) = (1 - \lambda) \frac{\mathcal{N}\!\left( input | \mu_c, \Sigma_c \right) \pi}{\Sigma_i \mathcal{N}\!\left( input | \mu_{c_i}, \Sigma_{c_i} \right) \pi_i} + \lambda \frac{\pi}{\Sigma_i \pi_i}
+\end{equation}
 
 <!-- This is a markdown comment that will NOT show when you knit the document.  -->
 
