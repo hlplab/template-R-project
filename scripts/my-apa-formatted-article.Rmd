@@ -7,7 +7,7 @@ author:
   - name          : "YOUR NAME"
     affiliation   : "1,2"
     corresponding : yes    # Define only one corresponding author
-    address       : "3151 Social Science Plaza B, University of California, Irvine CA 92697–5100"
+    address       : "YOUR ADDRESS"
     email         : "YOUR@EMAIL-ADDRESS.COM"
     # role: 
     #   - Conceptualization
@@ -61,6 +61,7 @@ mask              : no
 draft             : no
 
 header-includes: 
+ - \usepackage{sectsty}
  - \usepackage{animate}
  - \usepackage{amsmath}
  - \usepackage{tikz}
@@ -72,7 +73,6 @@ header-includes:
  - \usepackage{xcolor}
  - \usepackage{placeins}
  - \setstcolor{red}
- - \usepackage{sectsty}
  - \sectionfont{\color{black}}
  - \subsectionfont{\color{black}}
  - \subsubsectionfont{\color{black}}
@@ -94,6 +94,7 @@ always_allow_html: true
 <!-- THIS IS THE DOCUMENT THAT YOU USE FOR KNITTING. IT WILL KNIT ALL THE OTHER SECTIONS, TOO -->
 
 ```{r libraries, include=FALSE, message=FALSE}
+devtools::install_github("crsh/papaja") # Make sure this library is up-to-date
 library(papaja)             # APA formatted ms
 
 library(tidyverse)
