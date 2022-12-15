@@ -85,11 +85,15 @@ fontsize          : 11pt
 output: 
   papaja::apa6_pdf:
     latex_engine: xelatex
-    extra_dependencies: "subfig" 
     includes:
       in_header: latex-stuff/header.tex
+    keep_tex: yes
+    citation_package: biblatex
+    extra_dependencies: "subfig" 
 always_allow_html: true
 ---
+
+\setcounter{secnumdepth}{5}
 
 <!-- THIS IS THE DOCUMENT THAT YOU USE FOR KNITTING. IT WILL KNIT ALL THE OTHER SECTIONS, TOO -->
 
@@ -150,9 +154,12 @@ options(width = 200, digits = 2, OutDec = ".", tinytex.verbose = TRUE)
 base.width = 2.15
 base.height = 2.15
 
-animate = T         # switch on/off to replace animations with facets (not yet implemented for all instances)
-TODO = F            # switch on/off to get to do list.
-RESET_FIGURES = T   # switch on/off whether figures that exist as files are regenerated
+INCLUDE_TODO = T     # switch on/off to get to do list.
+SET_SEED = T         # switch on/off whether the same seed is set every time a randomization procedure is called
+ANIMATE_FIGURES = T  # switch on/off to replace animations with facets (not yet implemented for all instances)
+RESET_FIGURES = T    # switch on/off whether time-consuming 3D figures are re-run and overridden
+RESET_MODELS = F     # switch on/off whether model optimization etc. is re-run even if it's already in the repo 
+                     # (this will take a long time to run [many hours])
 ```
 
 ```{r analysis-preferences}
@@ -166,6 +173,7 @@ knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 ```
 
 <!-- Using inline R markdown child definition since only the quiet = T option oppresses both the latex *and* the R output of a child -->
+\brefsection
 
 ```{r, child="section-1-introduction.Rmd"}
 ```
@@ -176,6 +184,13 @@ knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 ```{r, child="section-7-references.Rmd"}
 ```
 
+\printbibliography
+\erefsection
+
+\brefsection
+
 ```{r, child="supplementary-information.Rmd"}
 ```
 
+\printbibliography
+\erefsection
