@@ -1,6 +1,23 @@
 <!-- Do NOT knit this document. It is part of a larger document. Instead knit the main document (my-apa-formatted-article) -->
 
 # Introduction
+This is an R Markdown-based template for APA articles, used by the Human Language Processing Lab at the University of Rochester. If you have questions or ideas on how to improve his template, please let us know, e.g., at [fjaeger@ur.rochester.edu](fjaeger@ur.rochester.edu).
+
+The template uses many cool R packages. In particular, the package relies heavily on papaja, knitr, citr, and other packages. Make sure to read the great [https://frederikaust.com/papaja_man/writing.html](overview of the papaja package). 
+
+To get started on using this manuscript, have a look at the index.Rmd file. It's the parent Rmd file that loads all the other Rmd files, one for each section of the paper. The index.Rmd file is also the file that is used to knit the entire document.
+
+## Issues with biblatex
+This document uses biblatex, in order to allow multiple bibliographies---one at the end of the main text, and one at the end of the supplementary information. Biblatex and biber can be a bit difficult to handle, and you might see errors "Error: Failed to build the bibliography via biber" or lots of unrecognized references even when the .bib file contains them. In that case, make sure your biblatex and biber version are compatible. E.g., if you see something like: 
+```
+ERROR - Error: Found biblatex control file version 3.11, expected version 3.10.
+This means that your biber (2.19) and biblatex (3.20) versions are incompatible.
+See compat matrix in biblatex or biber PDF documentation.
+```
+
+You need to make sure that you update your latex environment and that those updates are visible to RStudio. Generally, the easiest way to do that is via the R package `tinytex::tlmgr_update()`. Sometimes, however, this is not enough. In those cases, try `tinytex::tlmgr_install("biber")` and `tinytex::tlmgr_install("biblatex")`.
+
+# Another section with some examples of citations, figures, etc.
 How humans managed to survive so far remains one of the central questions of the social sciences. ... Here are some references [e.g., @bradlow-bent2008; @nygaard1994; @Perrachione2016; @sidaras2009; @wade2007; @weil2001a; @xie2021jep]. And here is a figure references to Figure \@ref(fig:blub-results). 
 
 (ref:blub-results) You should use a verbose caption that is self-contained and clearly states the main points of the figure. When you look at the R markdown for this document, note that the caption is *outside* of the R-chunk but linked to the R-chunk through a reference in the chunk option fig.cap. Notice also how the reference in the main text uses the label fig:label, whereas the caption and the R chunk option fig.cap that generates the figure use the label ref:label. Finally, the R-chunk itself is called label. Make sure to follow this format in order to make sure that your figure references and captions knit correctly. This example also demonstrates how you can use a globally defined base width and height for all figures. In this example, the base height is multiplied by two because we're faceting the data into two rows.
@@ -22,4 +39,4 @@ p(category | input) = (1 - \lambda) \frac{\mathcal{N}\!\left( input | \mu_c, \Si
 
 <!-- This is a markdown comment that will NOT show when you knit the document.  -->
 
-All data and code for this article can be downloaded from[https://osf.io/q7gjp/](OSF). This article is written in R markdown, allowing readers to replicate our analyses with the press of a button using freely available software [R, @R; @RStudio], while changing any of the parameters of our models. Readers can revisit any of the assumptions we make---for example, by substituting alternative models of linguistic representations. The supplementary information (SI, \@ref(sec:SI-software)) lists the software/libraries required to compile this document. Beyond our immediate goals here, we hope that this can be helpful to researchers who are interested in developing more informative experimental designs, and to facilitate the interpretation of existing results [see also @tan2021]. 
+All data and code for this article can be downloaded from [https://osf.io/q7gjp/](OSF). This article is written in R markdown, allowing readers to replicate our analyses with the press of a button using freely available software [R, @R; @RStudio], while changing any of the parameters of our models. Readers can revisit any of the assumptions we make---for example, by substituting alternative models of linguistic representations. The supplementary information (SI, \@ref(sec:SI-software)) lists the software/libraries required to compile this document. Beyond our immediate goals here, we hope that this can be helpful to researchers who are interested in developing more informative experimental designs, and to facilitate the interpretation of existing results [see also @tan2021]. 
