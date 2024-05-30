@@ -55,12 +55,11 @@ floatsintext      : yes
 figurelist        : no
 tablelist         : no
 footnotelist      : no
-# Check before first submission:
+# Check before submission:
 numbersections    : no  # APA style is "no" but check journal guidelines
 linenumbers       : yes # If journal generates line numbers, change to "no" before submission
 draft             : yes # Change to "no" before initial submission
-# Check before final submission:
-mask              : yes # Unmask for final submission
+mask              : no  # Mask for submission, unmask for final submission
 
 header-includes: 
  - \usepackage{sectsty}
@@ -80,6 +79,11 @@ header-includes:
  - \subsubsectionfont{\color{black}}
  - \usepackage{setspace}\doublespacing
  - \usepackage{subfig}
+ - \usepackage{float} 
+ - \floatplacement{figure}{H} 
+ - \usepackage{multirow}
+ - \usepackage{lscape}
+ - \usepackage{pdflscape}
  
 documentclass: "apa6"
 classoption:   "man"
@@ -87,11 +91,11 @@ fontsize:      11pt
 output: 
   papaja::apa6_pdf:
     latex_engine: xelatex
+    citation_package: biblatex
+    extra_dependencies: "subfig" 
     includes:
       in_header: latex-stuff/header.tex
     keep_tex: yes
-    citation_package: biblatex
-    extra_dependencies: "subfig" 
 always_allow_html: true
 ---
 
@@ -111,39 +115,39 @@ if (!exists("PREAMBLE_LOADED")) source("preamble.R")
 # and then refer to those variables in the knitr chunk options that describe the figure width and height for a 
 # specific R chunk.
 options(width = 200, digits = 2, OutDec = ".", tinytex.verbose = TRUE)
-base.width = 2.15
-base.height = 2.15
+base.width = 1.33
+base.height = 1.33
 
 knitr::opts_chunk$set(
-  echo = FALSE, message = FALSE, warning = TRUE, 
-  results = "markup", cache = TRUE,
+  echo = FALSE, message = FALSE, warning = FALSE, 
+  results = "markup", cache = TRUE, cache.lazy = F,
   interval = .2,
-  fig.path = "../figures/knitted/", fig.align = "center", fig.height = 2.5, fig.width = 2.5)
-
-knitr::knit_hooks$set(inline = function(x) {
-  prettyNum(x, big.mark=",")
-})
+  fig.align = "center", fig.height = base.height, fig.width = base.width,
+  tidy.opts = list(width.cutoff=80), tidy=TRUE)
 
 # Some useful formatting for warnings and error messages, so that they are not easily missed.
-knitr::knit_hooks$set(document = function(x) {sub('\\usepackage[]{color}', '\\usepackage{xcolor}', x, fixed = TRUE)})
-color_block = function(color) { function(x, options) sprintf('\\color{%s}\\begin{verbatim}%s\\end{verbatim}\\color{black}', color, x) }
+knitr::knit_hooks$set(document = function(x) {
+  sub('\\usepackage[]{color}', '\\usepackage{xcolor}', x, fixed = TRUE)})
+color_block = function(color) { 
+  function(x, options) sprintf('\\color{%s}\\begin{verbatim}%s\\end{verbatim}\\color{black}', color, x) }
 knitr::knit_hooks$set(error = color_block('red'))
 knitr::knit_hooks$set(warning = color_block('orange'))
 knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+knitr::knit_hooks$set(inline = function(x) { if (is.numeric(x)) prettyNum(x, big.mark=",") else x })
 ```
 
 ```{r}
-INCLUDE_TODO = T            # switch on/off to get to do list.
+INCLUDE_TODO <- T           # switch on/off to get to do list.
 ```
 
-```{r, child="section-TO-DO.Rmd", eval= if (INCLUDE_TODO) TRUE else FALSE}
+```{r sec-to-do, child="section-TO-DO.Rmd", eval= if (INCLUDE_TODO) TRUE else FALSE}
 ```
 
 \newpage 
-\brefsection
-
 \setcounter{page}{1}
 \setcounter{section}{0}
+
+\brefsection
 
 ```{r, child="section-introduction.Rmd"}
 ```
@@ -154,15 +158,10 @@ INCLUDE_TODO = T            # switch on/off to get to do list.
 ```{r, child="section-references.Rmd"}
 ```
 
-\newpage
-\printbibliography
 \erefsection
 
 \newpage
 \brefsection
-\setcounter{page}{1}
-\renewcommand{\thesection}{\S \arabic{section}}
-\renewcommand{\theHsection}{sisection. \arabic{section}}
 
 ```{r, child="supplementary-information.Rmd"}
 ```

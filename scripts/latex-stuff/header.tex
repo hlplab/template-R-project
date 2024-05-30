@@ -55,3 +55,9 @@
 \newcommand{\brefsection}{\begin{refsection}}
 \newcommand{\erefsection}{\end{refsection}}
 
+\newcommand{\changelocaltocdepth}[1]{%
+  \addtocontents{toc}{\protect\setcounter{tocdepth}{#1}}%
+  \setcounter{tocdepth}{#1}%
+}
+\setcounter{tocdepth}{-10}
+\changelocaltocdepth{-10}
