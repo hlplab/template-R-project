@@ -32,7 +32,7 @@ version
 
 You will also need to download the IPA font [SIL Doulos](https://software.sil.org/doulos/download/) and a Latex environment like (e.g., [MacTex](https://tug.org/mactex/mactex-download.html) or the R library \texttt{tinytex}).
 
-We used the following R packages to create this document: `r cite_r("latex-stuff/r-references.bib", omit = T, pkgs = c("RJ-2021-048"))`. If opened in RStudio, the top of the R markdown document should alert you to any libraries you will need to download, if you have not already installed them. The full session information is provided at the end of this document.
+We used the following R packages to create this document: `r papaja::cite_r("latex-stuff/r-references.bib", omit = T, pkgs = c("RJ-2021-048"))`. If opened in RStudio, the top of the R markdown document should alert you to any libraries you will need to download, if you have not already installed them. The full session information is provided at the end of this document.
 
 ## Interested in using R markdown do create APA formatted documents that integrate your code with your writing?
 A project template, including R markdown files that result in APA-formatted PDFs, is available at [https://github.com/hlplab/template-R-project](https://github.com/hlplab/template-R-project). Feedback welcome. We aim to help others avoid the mistakes and detours we made when first deciding to embrace literal coding to increase transparency in our projects.

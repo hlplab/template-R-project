@@ -1,11 +1,9 @@
 <!-- Do NOT knit this document. It is part of a larger document. Instead knit the main document (my-apa-formatted-article) -->
 
 # Introduction
-This is an R Markdown-based template for APA articles, used by the Human Language Processing Lab at the University of Rochester. If you have questions or ideas on how to improve his template, please let us know, e.g., at [fjaeger@ur.rochester.edu](fjaeger@ur.rochester.edu).
-
 The template uses many cool R packages. In particular, the package relies heavily on papaja, knitr, citr, and other packages. Make sure to read the great [https://frederikaust.com/papaja_man/writing.html](overview of the papaja package). 
 
-To get started on using this manuscript, have a look at the index.Rmd file. It's the parent Rmd file that loads all the other Rmd files, one for each section of the paper. The index.Rmd file is also the file that is used to knit the entire document.
+To get started on using this manuscript, have a look at any of the files with "START-HERE" in the filename. It's the parent Rmd file that loads all the other Rmd files, one for each section of the paper. 
 
 ## Issues with biblatex
 This document uses biblatex, in order to allow multiple bibliographies---one at the end of the main text, and one at the end of the supplementary information. Biblatex and biber can be a bit difficult to handle, and you might see errors "Error: Failed to build the bibliography via biber" or lots of unrecognized references even when the .bib file contains them. In that case, make sure your biblatex and biber version are compatible. E.g., if you see something like: 
