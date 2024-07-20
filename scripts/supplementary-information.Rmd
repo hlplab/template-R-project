@@ -3,22 +3,28 @@
      This will make sure that all references to sections, figures, tables, etc. are working as intended. You can easily separate 
      the PDF into two parts, using e.g., Acrobat PDF viewer. //-->
      
-\setcounter{page}{1}
+# Supplementary information for *TITLE* {-}
 
-# Supplementary information {-}
 \singlespacing
-
+<!-- Reset counters -->
+\setcounter{page}{1}
 \setcounter{section}{0}
 \setcounter{footnote}{0}
 \setcounter{figure}{0}
 \setcounter{table}{0}
 \setcounter{equation}{0}
+<!-- Redefine caption numbering to make them uniquely identifiable -->
 \renewcommand{\thesection}{\S \arabic{section}}
-\renewcommand{\theHsection}{sisection. \arabic{section}}
 \renewcommand{\thefootnote}{S\arabic{footnote}}
 \renewcommand{\thefigure}{S\arabic{figure}}
 \renewcommand{\thetable}{S\arabic{table}}
 \renewcommand{\theequation}{S\arabic{equation}}
+<!-- Redefine labels for \refs to element to make them uniquely identifiable -->
+\renewcommand{\theHsection}{S\arabic{section}}
+\renewcommand{\theHfootnote}{S\arabic{footnote}}
+\renewcommand{\theHfigure}{S\arabic{figure}}
+\renewcommand{\theHtable}{S\arabic{table}}
+\renewcommand{\theHequation}{S\arabic{equation}}
 
 \changelocaltocdepth{3}
 \tableofcontents
