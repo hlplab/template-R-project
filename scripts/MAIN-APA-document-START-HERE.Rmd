@@ -62,28 +62,29 @@ draft             : yes # Change to "no" before initial submission
 mask              : no  # Mask for submission, unmask for final submission
 
 header-includes: 
+ - \usepackage[table,xcdraw]{xcolor}
  - \usepackage{sectsty}
  - \usepackage{animate}
  - \usepackage{amsmath}
  - \usepackage{tikz}
  - \usetikzlibrary{bayesnet}
  - \usepackage{booktabs}
- - \usepackage{siunitx}
- - \usepackage{soul}
- - \usepackage{tabto}
- - \usepackage{xcolor}
- - \usepackage{placeins}
- - \setstcolor{red}
  - \sectionfont{\color{black}}
  - \subsectionfont{\color{black}}
  - \subsubsectionfont{\color{black}}
+ - \usepackage{siunitx}
+ - \usepackage{soul}
+ - \usepackage{tabto}
+ - \usepackage{placeins}
  - \usepackage{setspace}\doublespacing
- - \usepackage{subfig}
  - \usepackage{float} 
  - \floatplacement{figure}{H} 
+ - \usepackage{subfig}
  - \usepackage{multirow}
  - \usepackage{lscape}
  - \usepackage{pdflscape}
+ - \usepackage{tipa}      # Additional IPA support
+ - \usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
  
 documentclass: "apa6"
 classoption:   "man"
@@ -92,6 +93,14 @@ output:
   papaja::apa6_pdf:
     latex_engine: xelatex
     citation_package: biblatex
+    biblio-style: apa
+    biblatexoptions: 
+      - backend=biber
+      - maxbibnames=999
+    header-includes: 
+      - \RequirePackage{biblatex-apa}
+      - \RequirePackage{csquotes}
+      - \DeclareMathOperator{\E}{\mathrm{E}}
     extra_dependencies: "subfig" 
     includes:
       in_header: latex-stuff/header.tex

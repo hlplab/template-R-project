@@ -43,7 +43,7 @@ if (length(new.packages)) {
   if ("supunsup" %in% new.packages) remotes::install_github("kleinschmidt/phonetic-sup-unsup")
   new.packages <- setdiff(new.packages, c("remotes", "papaja", "cmdstanr", "MVBeliefUpdatr", "supunsup"))
 
-  install.packages(new.packages)
+  install.packages(new.packages, repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
 }
 
 for (p in list.of.packages) {

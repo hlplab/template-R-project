@@ -35,7 +35,7 @@ abstract:
 
 keywords:  "KEY-WORD1; KEY-WORD2; KEY-WORD3; ..."
 bibliography:   ["latex-stuff/library.bib", "latex-stuff/r-references.bib"]
-
+ 
 output:
   bookdown::pdf_book:
     base_format: rticles::jasa_article

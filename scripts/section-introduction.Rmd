@@ -3,7 +3,7 @@
 # Introduction
 The template uses many cool R packages. In particular, the package relies heavily on papaja, knitr, citr, and other packages. Make sure to read the great [https://frederikaust.com/papaja_man/writing.html](overview of the papaja package). 
 
-To get started on using this manuscript, have a look at any of the files with "START-HERE" in the filename. It's the parent Rmd file that loads all the other Rmd files, one for each section of the paper. 
+To get started on using this manuscript, have a look at any of the files with "START-HERE" in the filename. It's the parent Rmd file that loads all the other Rmd files, one for each section of the paper.\todo{You can also leave comments for yourself or collaborators with the \\todo tag.} 
 
 ## Issues with biblatex
 This document uses biblatex, in order to allow multiple bibliographies---one at the end of the main text, and one at the end of the supplementary information. Biblatex and biber can be a bit difficult to handle, and you might see errors "Error: Failed to build the bibliography via biber" or lots of unrecognized references even when the .bib file contains them. In that case, make sure your biblatex and biber version are compatible. E.g., if you see something like: 
@@ -32,7 +32,7 @@ cars %>%
 You can also make phonetic symbols, e.g., for the sound category [`r linguisticsdown::cond_cmpl("ʃ")`] [as in *ship*, Newman et al., -@newman2001]. And you can type equations like Equation \@ref(eq:posterior-probability-lapse), which describes Wichmann and Hill's psychometric model with parameters $\alpha$ and $\beta$ and more.  
 
 \begin{equation}\label{eq:posterior-probability-lapse}
-p(category | input) = (1 - \lambda) \frac{\mathcal{N}\!\left( input | \mu_c, \Sigma_c \right) \pi}{\Sigma_i \mathcal{N}\!\left( input | \mu_{c_i}, \Sigma_{c_i} \right) \pi_i} + \lambda \frac{\pi}{\Sigma_i \pi_i}
+p(category | input) = (1 - \lambda) \frac{\mathcal{N}! \left( input | \mu_c, \Sigma_c \right) \pi }{ \Sigma_i \mathcal{N}!\left( input | \mu_{c_i}, \Sigma_{c_i} \right) \pi_i } + \lambda \frac{ \pi }{ \Sigma_i \pi_i }
 \end{equation}
 
 <!-- This is a markdown comment that will NOT show when you knit the document.  -->
