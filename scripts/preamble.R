@@ -1,4 +1,5 @@
 # Libraries ---------------------------------------------------------------------
+options(repos = c(CRAN = "https://cloud.r-project.org"))
 
 # Make sure the following are installed. This includes packages that are not on CRAN
 # and packages that are not loaded below but instead directly references in the code
