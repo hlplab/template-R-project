@@ -123,7 +123,10 @@ if (!exists("PREAMBLE_LOADED")) source("preamble.R")
 # To keep figure sizes comparable across the paper, you can define a basic width and height (e.g., for each panel)
 # and then refer to those variables in the knitr chunk options that describe the figure width and height for a 
 # specific R chunk.
-options(width = 200, digits = 2, OutDec = ".", tinytex.verbose = TRUE)
+options(
+   width = 200, digits = 5, OutDec = ".", 
+   # control how much information tinytex leaves of the interim steps while knitting
+   tinytex.clean = TRUE, tinytex.verbose = TRUE)
 base.width = 1.33
 base.height = 1.33
 
@@ -131,8 +134,11 @@ knitr::opts_chunk$set(
   echo = FALSE, message = FALSE, warning = FALSE, 
   results = "markup", cache = TRUE, cache.lazy = F,
   interval = .2,
-  fig.align = "center", fig.height = base.height, fig.width = base.width,
-  tidy.opts = list(width.cutoff=80), tidy=TRUE)
+  # default plot settings, including no floating
+  fig.align = "center", fig.height = base.height, fig.width = base.width, fig.pos = "H",
+  tidy.opts = list(width.cutoff=80), tidy=TRUE,
+  # high quality raster images
+  dev = "ragg_png", dpi = 300)
 
 # Some useful formatting for warnings and error messages, so that they are not easily missed.
 knitr::knit_hooks$set(document = function(x) {
