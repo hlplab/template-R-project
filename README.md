@@ -1,8 +1,11 @@
 # template-R-project
 This is a template for an R project with some commonly used directories and suggestions on how to structure your data and scripts. 
-It also contains example of R markdown files that can be used to knit APA-formatted articles.
+It also contains R Markdown templates that can be used to knit APA-formatted or JASA-formatted articles. These templates---available in the scripts/ folder---
+demonstrate all the common Markdown features like equations, figures, tables, etc., figure and table caption generation, cross-referencing, citations 
+and bibliography generations. The templates also include demonstrations of R Markdown features like R code chunks, inline code, etc. Finally, the 
+templates include examples of author-colored comments that can facilitate communication between collaborators.
 
-## How to use this template
+# How to use this template
 If you start a new project, start by comming to this URL. Click "Use this template". That will create a new remote github repository. 
 Give it the name of your new project.
 
@@ -45,3 +48,9 @@ If you follow standards of the field, you will likely want to share more than ju
 materials that went into creating the stimuli. In that case, make sure to add additional folders (e.g., stimuli/, materials/, etc.).
 But keep in mind that these types of files can be very large. So we tend to upload these files onto OSF, rather than including them
 into the git repository. However, if the inclusion of large files in the git repository becomes necessary, check out https://git-lfs.github.com/.
+
+
+# How to spread the word
+If you find this template helpful, please include a line in your manuscript along the lines of "To support reproducibility, this article was 
+generated using R Markdown---specifically, the HLP Lab template available at [https://github.com/hlplab/template-R-project/](https://github.com/hlplab/template-R-project/)." 
+Thank you!
