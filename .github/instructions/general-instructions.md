@@ -1,0 +1,1 @@
+Display equations in compiled latex.
